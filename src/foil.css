@@ -1,0 +1,241 @@
+.foil-pair {
+  position: relative;
+  display: grid;
+  width: min(72vw, 320px);
+  margin: 0 auto;
+  padding: 56px 0 24px;
+  perspective: 1600px;
+  perspective-origin: 50% 42%;
+}
+
+.theme-switch {
+  appearance: none;
+  position: fixed;
+  top: max(4px, env(safe-area-inset-top));
+  left: 50%;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--sheen);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 78%, var(--ink) 8%);
+  color: var(--ink);
+  transform: translateX(-50%);
+}
+
+.theme-switch svg {
+  width: 16px;
+  height: 16px;
+}
+
+.foil-stage {
+  width: 100%;
+  transform-style: preserve-3d;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+.foil-stage * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.foil-stage:active {
+  cursor: grabbing;
+}
+
+.foil-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 250.7 / 350.358;
+  transform-style: preserve-3d;
+  box-shadow: 0 28px 50px rgba(0, 0, 0, 0.32);
+}
+
+.foil-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+  overflow: hidden;
+}
+
+.foil-face--front {
+  background: inherit;
+}
+
+.foil-card--dark .foil-face--front {
+  --ink: #6a5a42;
+  background: #161514;
+}
+
+.foil-card--light .foil-face--front {
+  --ink: #9a7840;
+  background: #d2cec9;
+}
+
+.foil-face--back {
+  transform: rotateY(180deg);
+}
+
+.foil-card--dark {
+  --ink: #6a5a42;
+}
+
+.foil-card--dark .foil-face--back {
+  background: #161514;
+}
+
+.foil-card--light {
+  --ink: #9a7840;
+}
+
+.foil-card--light .foil-face--back {
+  background: #d2cec9;
+}
+
+.foil-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.art-svg {
+  position: absolute;
+  pointer-events: none;
+}
+
+.art-svg svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.art-svg.frame {
+  width: calc(243 / 250.7 * 100%);
+  height: calc(338 / 350.358 * 100%);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.art-svg.inner {
+  width: calc(233 / 250.7 * 100%);
+  height: calc(328 / 350.358 * 100%);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.art-svg.sparkle-top,
+.art-svg.sparkle-bottom {
+  width: calc(224 / 250.7 * 100%);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.art-svg.sparkle-top {
+  top: calc(50% - (328 / 362.358 * 100%) / 2);
+  aspect-ratio: 224 / 33;
+}
+
+.art-svg.sparkle-bottom {
+  bottom: calc(50% - (328 / 350.358 * 100%) / 2);
+  aspect-ratio: 224 / 39;
+}
+
+.art-svg.flower {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.art-svg.mark-top,
+.art-svg.mark-bottom,
+.art-svg.mark-back {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.art-layer,
+.art-shine {
+  position: absolute;
+  inset: 0;
+}
+
+.art-shine {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.foil-stage.is-live .art-shine {
+  opacity: var(--sheen, 0);
+}
+
+.art-layer .art-svg :is(path, circle)[fill]:not([fill="none"]) {
+  fill: var(--ink);
+}
+
+.art-layer .art-svg :is(path, circle)[stroke] {
+  stroke: var(--ink);
+}
+
+.art-svg.mark-top,
+.art-svg.mark-bottom,
+.art-svg.mark-back,
+.art-svg .mark-text,
+.foil-face--back .art-svg.mark-back text {
+  font-family: Gloock, Georgia, serif;
+}
+
+.art-layer .art-svg.mark-top text,
+.art-layer .art-svg.mark-bottom text,
+.art-layer .art-svg.mark-back text,
+.art-shine .art-svg.mark-top text,
+.art-shine .art-svg.mark-bottom text,
+.art-shine .art-svg.mark-back text {
+  fill: var(--ink);
+  font-family: Gloock, Georgia, serif;
+}
+
+.foil-card--dark .foil-face--back,
+.foil-card--light .foil-face--back {
+  --ink: inherit;
+}
+
+.foil-card--dark .foil-face--back {
+  --ink: #6a5a42;
+}
+
+.foil-card--light .foil-face--back {
+  --ink: #9a7840;
+}
+
+.foil-stage--dark.is-live .art-shine .frame path { fill: url(#sheen-dark-frame); }
+.foil-stage--dark.is-live .art-shine .inner path { fill: url(#sheen-dark-inner); }
+.foil-stage--dark.is-live .art-shine .sparkle-top path { fill: url(#sheen-dark-sparkle-top); }
+.foil-stage--dark.is-live .art-shine .sparkle-bottom path { fill: url(#sheen-dark-sparkle-bottom); }
+.foil-stage--dark.is-live .art-shine .flower :is(path, circle)[fill]:not([fill="none"]) { fill: url(#sheen-dark-flower); }
+.foil-stage--dark.is-live .art-shine .flower :is(path, circle)[stroke] { stroke: url(#sheen-dark-flower); }
+.foil-stage--dark.is-live .art-shine .mark-top text { fill: url(#sheen-dark-mark-top); }
+.foil-stage--dark.is-live .art-shine .mark-bottom text { fill: url(#sheen-dark-mark-bottom); }
+.foil-stage--dark.is-live .art-shine .mark-back text { fill: url(#sheen-dark-mark-back); }
+
+.foil-stage--light.is-live .art-shine .frame path { fill: url(#sheen-light-frame); }
+.foil-stage--light.is-live .art-shine .inner path { fill: url(#sheen-light-inner); }
+.foil-stage--light.is-live .art-shine .sparkle-top path { fill: url(#sheen-light-sparkle-top); }
+.foil-stage--light.is-live .art-shine .sparkle-bottom path { fill: url(#sheen-light-sparkle-bottom); }
+.foil-stage--light.is-live .art-shine .flower :is(path, circle)[fill]:not([fill="none"]) { fill: url(#sheen-light-flower); }
+.foil-stage--light.is-live .art-shine .flower :is(path, circle)[stroke] { stroke: url(#sheen-light-flower); }
+.foil-stage--light.is-live .art-shine .mark-top text { fill: url(#sheen-light-mark-top); }
+.foil-stage--light.is-live .art-shine .mark-bottom text { fill: url(#sheen-light-mark-bottom); }
+.foil-stage--light.is-live .art-shine .mark-back text { fill: url(#sheen-light-mark-back); }
