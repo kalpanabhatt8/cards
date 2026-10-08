@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "cp index.source.html index.html",
     "build": "vite build",
     "preview": "vite preview"
   },
