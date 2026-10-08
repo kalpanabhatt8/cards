@@ -11,19 +11,21 @@
 .theme-switch {
   appearance: none;
   position: fixed;
-  top: max(4px, env(safe-area-inset-top));
-  left: 50%;
-  z-index: 20;
+  top: calc(20px + env(safe-area-inset-top, 0px));
+  right: calc(20px + env(safe-area-inset-right, 0px));
+  left: auto;
+  z-index: 40;
   display: grid;
   place-items: center;
   width: 40px;
   height: 40px;
   padding: 0;
-  border: 1px solid var(--sheen);
+  border: 0;
+  outline: none;
   border-radius: 999px;
   background: color-mix(in srgb, var(--bg) 78%, var(--ink) 8%);
   color: var(--ink);
-  transform: translateX(-50%);
+  transform: none;
 }
 
 .theme-switch svg {
@@ -55,7 +57,18 @@
   width: 100%;
   aspect-ratio: 250.7 / 350.358;
   transform-style: preserve-3d;
-  box-shadow: 0 28px 50px rgba(0, 0, 0, 0.32);
+}
+
+/* Dark: one soft, wide blur — low opacity so it doesn’t stack as dim-on-dim. */
+.foil-card--dark {
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+}
+
+/* Light: separate, slightly tighter cast on the lighter page. */
+.foil-card--light {
+  box-shadow:
+    0 10px 28px rgba(40, 28, 18, 0.12),
+    0 28px 64px rgba(40, 28, 18, 0.14);
 }
 
 .foil-face {
@@ -72,12 +85,12 @@
 }
 
 .foil-card--dark .foil-face--front {
-  --ink: #6a5a42;
+  --ink: #554833;
   background: #161514;
 }
 
 .foil-card--light .foil-face--front {
-  --ink: #9a7840;
+  --ink: #7d6640;
   background: #d2cec9;
 }
 
@@ -86,7 +99,7 @@
 }
 
 .foil-card--dark {
-  --ink: #6a5a42;
+  --ink: #554833;
 }
 
 .foil-card--dark .foil-face--back {
@@ -94,7 +107,7 @@
 }
 
 .foil-card--light {
-  --ink: #9a7840;
+  --ink: #7d6640;
 }
 
 .foil-card--light .foil-face--back {
@@ -137,18 +150,19 @@
 
 .art-svg.sparkle-top,
 .art-svg.sparkle-bottom {
-  width: calc(224 / 250.7 * 100%);
+  width: calc(224 / 262.7 * 100%);
   left: 50%;
   transform: translateX(-50%);
+  z-index: 1;
 }
 
 .art-svg.sparkle-top {
-  top: calc(50% - (328 / 362.358 * 100%) / 2);
+  top: calc(50% - (328 / 369.358 * 100%) / 2);
   aspect-ratio: 224 / 33;
 }
 
 .art-svg.sparkle-bottom {
-  bottom: calc(50% - (328 / 350.358 * 100%) / 2);
+  bottom: calc(50% - (328 /356.358  * 100%) / 2);
   aspect-ratio: 224 / 39;
 }
 
@@ -190,11 +204,22 @@
 }
 
 .art-svg.mark-top,
+.art-svg.mark-top .mark-text,
 .art-svg.mark-bottom,
+.art-svg.mark-bottom .mark-text,
+.art-layer .art-svg.mark-top text,
+.art-layer .art-svg.mark-bottom text,
+.art-shine .art-svg.mark-top text,
+.art-shine .art-svg.mark-bottom text {
+  font-family: "Instrument Serif", "Iowan Old Style", Palatino, serif;
+}
+
 .art-svg.mark-back,
-.art-svg .mark-text,
-.foil-face--back .art-svg.mark-back text {
-  font-family: Gloock, Georgia, serif;
+.art-svg.mark-back .mark-text,
+.foil-face--back .art-svg.mark-back text,
+.art-layer .art-svg.mark-back text,
+.art-shine .art-svg.mark-back text {
+  font-family: Clemora, Georgia, serif;
 }
 
 .art-layer .art-svg.mark-top text,
@@ -204,7 +229,6 @@
 .art-shine .art-svg.mark-bottom text,
 .art-shine .art-svg.mark-back text {
   fill: var(--ink);
-  font-family: Gloock, Georgia, serif;
 }
 
 .foil-card--dark .foil-face--back,
@@ -213,11 +237,11 @@
 }
 
 .foil-card--dark .foil-face--back {
-  --ink: #6a5a42;
+  --ink: #554833;
 }
 
 .foil-card--light .foil-face--back {
-  --ink: #9a7840;
+  --ink: #7d6640;
 }
 
 .foil-stage--dark.is-live .art-shine .frame path { fill: url(#sheen-dark-frame); }

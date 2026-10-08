@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Clemora";
+  src: url("/font/Clemora-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg: #12100e;
   --ink: #f3eee6;
@@ -7,11 +15,12 @@
   --card-h: min(104vw, 486px);
   --depth: 16px;
   --radius: 26px;
+  --font: "Clemora", Georgia, serif;
   color-scheme: dark;
 }
 
 :root[data-theme="light"] {
-  --bg: #cfc8c0;
+  --bg: #b5aea6;
   --ink: #1b1612;
   --muted: #6d645a;
   --line: rgba(27, 22, 18, 0.18);
@@ -44,7 +53,7 @@ body {
   margin: 0;
   min-height: 100dvh;
   color: var(--ink);
-  font-family: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
+  font-family: var(--font);
   font-weight: 400;
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
@@ -266,7 +275,7 @@ a:focus-visible {
 
 .caption h2 {
   margin: 0;
-  font-family: "Fraunces", "Iowan Old Style", Palatino, serif;
+  font-family: var(--font);
   font-size: 1.85rem;
   font-weight: 520;
   letter-spacing: -0.035em;

@@ -42,33 +42,33 @@ function scopeMarkup(markup, scope) {
 
 const CARD_W = 250.7;
 const CARD_H = 350.358;
-const INK = { dark: "#6a5a42", light: "#9a7840" };
-const MARK_TOP_Y = CARD_H * (0.5 - 328 / 372.358 / 2 + 0.062);
-const MARK_BOTTOM_Y = CARD_H * (1 - (0.5 - 328 / 390.358 / 2 + 0.042));
+const INK = { dark: "#554833", light: "#7d6640" };
+const MARK_INSET = 42;
+const MARK_TOP_Y = MARK_INSET + 10;
+const MARK_BOTTOM_Y = CARD_H - MARK_INSET - 6;
 const MARK_BACK_Y = CARD_H / 2;
 
-function markMarkup(text, fontSize, y, tracking) {
-  return `<svg viewBox="0 0 ${CARD_W} ${CARD_H}" xmlns="http://www.w3.org/2000/svg"><text class="mark-text" x="${CARD_W / 2}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" letter-spacing="${tracking}" fill="#5E5E5E" style="font-family:Gloock,Georgia,serif">${text}</text></svg>`;
+function markMarkup(text, fontSize, y, tracking, fontFamily = "Instrument Serif, Iowan Old Style, Palatino, serif") {
+  return `<svg viewBox="0 0 ${CARD_W} ${CARD_H}" xmlns="http://www.w3.org/2000/svg"><text class="mark-text" x="${CARD_W / 2}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" letter-spacing="${tracking}" fill="#5E5E5E" style="font-family:${fontFamily}">${text}</text></svg>`;
 }
 
-function wrappedMarkMarkup(lines, fontSize, centerY, tracking, lineGap = fontSize * 1.2) {
+function wrappedMarkMarkup(lines, fontSize, centerY, tracking, lineGap = fontSize * 1.2, fontFamily = "Clemora, Georgia, serif") {
   const startY = centerY - ((lines.length - 1) * lineGap) / 2;
   const tspans = lines
     .map((line, i) => `<tspan x="${CARD_W / 2}"${i ? ` dy="${lineGap}"` : ""}>${line}</tspan>`)
     .join("");
-  return `<svg viewBox="0 0 ${CARD_W} ${CARD_H}" xmlns="http://www.w3.org/2000/svg"><text class="mark-text" y="${startY}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" letter-spacing="${tracking}" fill="#5E5E5E" style="font-family:Gloock,Georgia,serif">${tspans}</text></svg>`;
+  return `<svg viewBox="0 0 ${CARD_W} ${CARD_H}" xmlns="http://www.w3.org/2000/svg"><text class="mark-text" y="${startY}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" letter-spacing="${tracking}" fill="#5E5E5E" style="font-family:${fontFamily}">${tspans}</text></svg>`;
 }
 
 const marks = [
-  { markup: markMarkup("888", 12, MARK_TOP_Y, "0.08em"), className: "mark-top", viewW: CARD_W, viewH: CARD_H, width: 1 },
-  { markup: markMarkup("October 2026", 9, MARK_BOTTOM_Y, "0.1em"), className: "mark-bottom", viewW: CARD_W, viewH: CARD_H, width: 1 },
+  { markup: markMarkup("08", 10, MARK_TOP_Y, "0", "Instrument Serif, Iowan Old Style, Palatino, serif"), className: "mark-top", viewW: CARD_W, viewH: CARD_H, width: 1 },
+  { markup: markMarkup("Oct 2026", 7.5, MARK_BOTTOM_Y, "0", "Instrument Serif, Iowan Old Style, Palatino, serif"), className: "mark-bottom", viewW: CARD_W, viewH: CARD_H, width: 1 },
 ];
 
 const backMarks = [
-  { markup: stroke2, className: "frame" },
   { markup: stroke1, className: "inner" },
   {
-    markup: wrappedMarkMarkup(["sending u good", "vibes &lt;3"], 20, MARK_BACK_Y, "0.03em"),
+    markup: wrappedMarkMarkup(["sending u good", "vibes &lt;3"], 15, MARK_BACK_Y, "0.03em"),
     className: "mark-back",
     viewW: CARD_W,
     viewH: CARD_H,
@@ -198,8 +198,8 @@ function useColorTone() {
   return [tone, setTone];
 }
 
-const FRONT_Y = -14;
-const BACK_Y = 166;
+const FRONT_Y = 0;
+const BACK_Y = 180;
 
 function FoilCard({ tone }) {
   const reduce = Boolean(useReducedMotion());
@@ -208,24 +208,33 @@ function FoilCard({ tone }) {
   const flipped = useRef(false);
   const flipAnim = useRef(null);
   const [fontTick, setFontTick] = useState(0);
-  const tiltX = useMotionValue(reduce ? 0 : 8);
-  const spinY = useMotionValue(reduce ? 0 : FRONT_Y);
+  const tiltX = useMotionValue(0);
+  const spinY = useMotionValue(FRONT_Y);
   const lift = useMotionValue(0);
   const springX = useSpring(tiltX, { stiffness: 110, damping: 16, mass: 0.7 });
   const springZ = useSpring(lift, { stiffness: 280, damping: 24, mass: 0.72 });
 
-  // Back face is hidden at first paint; remount marks once Gloock is ready.
+  // Remount marks once front/back fonts are ready.
   useEffect(() => {
     let alive = true;
     const mark = () => {
       if (alive) setFontTick((n) => n + 1);
     };
-    if (document.fonts?.check?.("12px Gloock")) mark();
-    document.fonts?.load?.("400 12px Gloock").then(mark).catch(() => {});
-    document.fonts?.ready?.then(mark).catch(() => {});
+    if (document.fonts?.check?.('12px "Instrument Serif"') && document.fonts?.check?.("12px Clemora")) mark();
+    Promise.all([
+      document.fonts?.load?.('400 12px "Instrument Serif"'),
+      document.fonts?.load?.("400 12px Clemora"),
+      document.fonts?.ready,
+    ]).then(mark).catch(() => {});
     return () => {
       alive = false;
     };
+  }, []);
+
+  useEffect(() => () => {
+    drag.current?.cleanup?.();
+    drag.current = null;
+    flipAnim.current?.stop();
   }, []);
 
   useEffect(() => {
@@ -345,44 +354,33 @@ function FoilCard({ tone }) {
     });
   }
 
-  function onPointerMove(event) {
+  function paintFromPoint(clientX, clientY, sheenScale = 1) {
     const stage = stageRef.current;
     if (!stage) return;
     const rect = stage.getBoundingClientRect();
-    const px = (event.clientX - rect.left) / rect.width - 0.5;
-    const py = (event.clientY - rect.top) / rect.height - 0.5;
-
-    if (drag.current) {
-      const dx = event.clientX - drag.current.x;
-      drag.current.dx = dx;
-      if (Math.abs(dx) > 6) drag.current.dir = Math.sign(dx);
-      const dir = drag.current.dir || 1;
-      const progress = Math.max(0, Math.min(1, Math.abs(dx) / 240));
-      drag.current.maxProgress = Math.max(drag.current.maxProgress || 0, progress);
-      spinY.set(drag.current.baseY + dir * 180 * progress);
-      stage.__paintSheen?.(px * 0.4, py * 0.4);
-      return;
-    }
-
-    // Hover: light 3D tilt + foil sheen (not while flipping).
-    if (!reduce && !flipAnim.current) {
-      tiltX.set(8 - py * 22);
-      spinY.set(restY() + px * 22);
-      stage.__paintSheen?.(px, py);
-      return;
-    }
-    if (!flipAnim.current) stage.__paintSheen?.(px, py);
+    const px = (clientX - rect.left) / rect.width - 0.5;
+    const py = (clientY - rect.top) / rect.height - 0.5;
+    stage.__paintSheen?.(px * sheenScale, py * sheenScale);
+    return { px, py };
   }
 
-  function onPointerLeave(event) {
-    if (event.buttons || drag.current || flipAnim.current) return;
-    lift.set(0);
-    stageRef.current?.classList.remove("is-live");
-    stageRef.current?.style.setProperty("--sheen", "0");
-    if (!reduce) {
-      tiltX.set(8);
-      spinY.set(restY());
-    }
+  function updateDrag(clientX, clientY) {
+    if (!drag.current) return;
+    const dx = clientX - drag.current.x;
+    drag.current.dx = dx;
+    if (Math.abs(dx) > 6) drag.current.dir = Math.sign(dx);
+    const dir = drag.current.dir || 1;
+    const progress = Math.max(0, Math.min(1, Math.abs(dx) / 240));
+    drag.current.maxProgress = Math.max(drag.current.maxProgress || 0, progress);
+    spinY.set(drag.current.baseY + dir * 180 * progress);
+    paintFromPoint(clientX, clientY, 0.4);
+  }
+
+  function unbindDragListeners() {
+    const session = drag.current;
+    if (!session?.cleanup) return;
+    session.cleanup();
+    session.cleanup = null;
   }
 
   function finishDrag(commit) {
@@ -391,9 +389,10 @@ function FoilCard({ tone }) {
     const dir = drag.current.dir || (dx === 0 ? 1 : Math.sign(dx));
     const baseY = drag.current.baseY;
     const progress = Math.max(Math.abs(dx) / 240, drag.current.maxProgress || 0);
+    unbindDragListeners();
     drag.current = null;
     lift.set(0);
-    if (!reduce) tiltX.set(8);
+    if (!reduce) tiltX.set(0);
 
     if (!commit || progress < 0.5) {
       settleY(baseY, flipped.current);
@@ -404,32 +403,87 @@ function FoilCard({ tone }) {
     settleY(baseY + dir * 180, !flipped.current);
   }
 
+  function onPointerMove(event) {
+    // Active drag is driven by window listeners so leaving the stage mid-press stays a drag.
+    if (drag.current) return;
+
+    // Button still down after a lost/interrupted drag: never fall into hover tilt.
+    if (event.buttons) return;
+
+    if (flipAnim.current) return;
+
+    const coords = paintFromPoint(event.clientX, event.clientY);
+    if (!coords || reduce) return;
+    tiltX.set(-coords.py * 18);
+    spinY.set(restY() + coords.px * 18);
+  }
+
+  function onPointerLeave(event) {
+    if (event.buttons || drag.current || flipAnim.current) return;
+    lift.set(0);
+    stageRef.current?.classList.remove("is-live");
+    stageRef.current?.style.setProperty("--sheen", "0");
+    if (!reduce) {
+      tiltX.set(0);
+      spinY.set(restY());
+    }
+  }
+
+  function onPointerDown(event) {
+    if (event.button !== 0) return;
+    if (drag.current) finishDrag(false);
+
+    if (flipAnim.current) {
+      flipAnim.current.stop();
+      flipAnim.current = null;
+      spinY.jump(restY());
+    }
+
+    const pointerId = event.pointerId;
+    const onWinMove = (e) => {
+      if (e.pointerId !== pointerId || !drag.current) return;
+      updateDrag(e.clientX, e.clientY);
+    };
+    const onWinUp = (e) => {
+      if (e.pointerId !== pointerId) return;
+      finishDrag(true);
+    };
+    const onWinCancel = (e) => {
+      if (e.pointerId !== pointerId) return;
+      finishDrag(false);
+    };
+    const cleanup = () => {
+      window.removeEventListener("pointermove", onWinMove);
+      window.removeEventListener("pointerup", onWinUp);
+      window.removeEventListener("pointercancel", onWinCancel);
+    };
+
+    drag.current = {
+      x: event.clientX,
+      dx: 0,
+      dir: 0,
+      maxProgress: 0,
+      baseY: flipped.current ? BACK_Y : FRONT_Y,
+      pointerId,
+      cleanup,
+    };
+    spinY.set(drag.current.baseY);
+    lift.set(48);
+
+    window.addEventListener("pointermove", onWinMove);
+    window.addEventListener("pointerup", onWinUp);
+    window.addEventListener("pointercancel", onWinCancel);
+    event.currentTarget.setPointerCapture?.(pointerId);
+    updateDrag(event.clientX, event.clientY);
+  }
+
   return (
     <div
       className={`foil-stage foil-stage--${tone}`}
       ref={stageRef}
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
-      onPointerDown={(event) => {
-        if (flipAnim.current) {
-          flipAnim.current.stop();
-          flipAnim.current = null;
-          spinY.jump(restY());
-        }
-        drag.current = {
-          x: event.clientX,
-          dx: 0,
-          dir: 0,
-          maxProgress: 0,
-          baseY: flipped.current ? BACK_Y : FRONT_Y,
-        };
-        spinY.set(drag.current.baseY);
-        event.currentTarget.setPointerCapture?.(event.pointerId);
-        lift.set(48);
-        onPointerMove(event);
-      }}
-      onPointerUp={() => finishDrag(true)}
-      onPointerCancel={() => finishDrag(false)}
+      onPointerDown={onPointerDown}
     >
       <motion.article
         className={`foil-card foil-card--${tone}`}
@@ -511,7 +565,7 @@ export default function FoilPair() {
   const [tone, setTone] = useColorTone();
   const nextTone = tone === "dark" ? "light" : "dark";
   return (
-    <div className="foil-pair">
+    <>
       <button
         type="button"
         className="theme-switch"
@@ -520,7 +574,9 @@ export default function FoilPair() {
       >
         {tone === "dark" ? <SunIcon /> : <MoonIcon />}
       </button>
-      <FoilCard tone={tone} />
-    </div>
+      <div className="foil-pair">
+        <FoilCard tone={tone} />
+      </div>
+    </>
   );
 }
