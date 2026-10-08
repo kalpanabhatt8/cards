@@ -487,7 +487,6 @@ function FoilCard({ tone }) {
 
   return (
     <div className={`foil-wrap foil-wrap--${tone}`} ref={wrapRef}>
-      <div className="foil-ambient" aria-hidden="true" />
       <div
         className={`foil-stage foil-stage--${tone}`}
         ref={stageRef}
@@ -499,6 +498,7 @@ function FoilCard({ tone }) {
         className={`foil-card foil-card--${tone}`}
         style={{ rotateX: springX, rotateY: spinY, z: springZ }}
       >
+        <div className="foil-card-shade" aria-hidden="true" />
         <div className="foil-face foil-face--front">
           <div className="art-layer">
             {[...pieces, ...marks].map((piece) => (
