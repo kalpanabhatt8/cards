@@ -204,6 +204,7 @@ const BACK_Y = 180;
 function FoilCard({ tone }) {
   const reduce = Boolean(useReducedMotion());
   const stageRef = useRef(null);
+  const wrapRef = useRef(null);
   const drag = useRef(null);
   const flipped = useRef(false);
   const flipAnim = useRef(null);
@@ -213,6 +214,10 @@ function FoilCard({ tone }) {
   const lift = useMotionValue(0);
   const springX = useSpring(tiltX, { stiffness: 110, damping: 16, mass: 0.7 });
   const springZ = useSpring(lift, { stiffness: 280, damping: 24, mass: 0.72 });
+
+  function setBusy(busy) {
+    wrapRef.current?.classList.toggle("is-busy", busy);
+  }
 
   // Remount marks once front/back fonts are ready.
   useEffect(() => {
@@ -339,6 +344,7 @@ function FoilCard({ tone }) {
 
   function settleY(targetY, toBack) {
     flipped.current = toBack;
+    setBusy(true);
     flipAnim.current?.stop();
     flipAnim.current = animate(spinY, targetY, {
       type: "spring",
@@ -350,6 +356,7 @@ function FoilCard({ tone }) {
       onComplete: () => {
         spinY.jump(restY());
         flipAnim.current = null;
+        setBusy(false);
       },
     });
   }
@@ -467,6 +474,7 @@ function FoilCard({ tone }) {
       pointerId,
       cleanup,
     };
+    setBusy(true);
     spinY.set(drag.current.baseY);
     lift.set(48);
 
@@ -478,13 +486,15 @@ function FoilCard({ tone }) {
   }
 
   return (
-    <div
-      className={`foil-stage foil-stage--${tone}`}
-      ref={stageRef}
-      onPointerMove={onPointerMove}
-      onPointerLeave={onPointerLeave}
-      onPointerDown={onPointerDown}
-    >
+    <div className={`foil-wrap foil-wrap--${tone}`} ref={wrapRef}>
+      <div className="foil-ambient" aria-hidden="true" />
+      <div
+        className={`foil-stage foil-stage--${tone}`}
+        ref={stageRef}
+        onPointerMove={onPointerMove}
+        onPointerLeave={onPointerLeave}
+        onPointerDown={onPointerDown}
+      >
       <motion.article
         className={`foil-card foil-card--${tone}`}
         style={{ rotateX: springX, rotateY: spinY, z: springZ }}
@@ -534,6 +544,7 @@ function FoilCard({ tone }) {
           </div>
         </div>
       </motion.article>
+      </div>
     </div>
   );
 }
